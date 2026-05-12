@@ -5,13 +5,14 @@ import {
   createAdminSession
 } from "@/lib/auth";
 import { getEnv } from "@/lib/env";
+import { buildRelativeUrl, createRedirectResponse } from "@/lib/request-url";
 
 export const runtime = "nodejs";
 
-function redirectWithMessage(request, pathname, key, message) {
-  const url = new URL(pathname, request.url);
+function redirectWithMessage(pathname, key, message) {
+  const url = new URL(buildRelativeUrl(pathname), "http://local");
   url.searchParams.set(key, message);
-  return NextResponse.redirect(url, { status: 303 });
+  return createRedirectResponse(`${url.pathname}${url.search}`);
 }
 
 export async function POST(request) {
@@ -21,12 +22,10 @@ export async function POST(request) {
   const env = getEnv();
 
   if (username !== env.adminUsername || password !== env.adminPassword) {
-    return redirectWithMessage(request, "/admin/login", "error", "Invalid credentials.");
+    return redirectWithMessage("/admin/login", "error", "Invalid credentials.");
   }
 
-  const response = NextResponse.redirect(new URL("/admin/registrations", request.url), {
-    status: 303
-  });
+  const response = createRedirectResponse("/admin/registrations");
   response.cookies.set(
     ADMIN_SESSION_COOKIE,
     createAdminSession(env.adminUsername),

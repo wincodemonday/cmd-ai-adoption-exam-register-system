@@ -3,6 +3,7 @@ import {
   REGISTRATION_SESSION_COOKIE,
   hasRegistrationAccess
 } from "@/lib/auth";
+import { buildRelativeUrl, createRedirectResponse } from "@/lib/request-url";
 import {
   FormError,
   getRegistrationByReference,
@@ -11,10 +12,10 @@ import {
 
 export const runtime = "nodejs";
 
-function redirectWithMessage(request, pathname, key, message) {
-  const url = new URL(pathname, request.url);
+function redirectWithMessage(pathname, key, message) {
+  const url = new URL(buildRelativeUrl(pathname), "http://local");
   url.searchParams.set(key, message);
-  return NextResponse.redirect(url, { status: 303 });
+  return createRedirectResponse(`${url.pathname}${url.search}`);
 }
 
 export async function POST(request, context) {
@@ -23,7 +24,6 @@ export async function POST(request, context) {
 
   if (!hasRegistrationAccess(sessionToken, referenceCode)) {
     return redirectWithMessage(
-      request,
       "/lookup",
       "error",
       "Please sign in to your submission again."
@@ -33,7 +33,7 @@ export async function POST(request, context) {
   const currentRegistration = await getRegistrationByReference(referenceCode);
 
   if (!currentRegistration) {
-    return redirectWithMessage(request, "/lookup", "error", "Registration not found.");
+    return redirectWithMessage("/lookup", "error", "Registration not found.");
   }
 
   const formData = await request.formData();
@@ -64,7 +64,6 @@ export async function POST(request, context) {
     });
 
     return redirectWithMessage(
-      request,
       `/submission/${currentRegistration.referenceCode}`,
       "success",
       "Changes saved."
@@ -73,7 +72,6 @@ export async function POST(request, context) {
     const message =
       error instanceof FormError ? error.message : "Unable to update submission.";
     return redirectWithMessage(
-      request,
       `/submission/${currentRegistration.referenceCode}`,
       "error",
       message

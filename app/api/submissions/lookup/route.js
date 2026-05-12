@@ -4,14 +4,15 @@ import {
   cookieOptions,
   createRegistrationSession
 } from "@/lib/auth";
+import { buildRelativeUrl, createRedirectResponse } from "@/lib/request-url";
 import { authenticateRegistration } from "@/lib/submissions";
 
 export const runtime = "nodejs";
 
-function redirectWithMessage(request, pathname, key, message) {
-  const url = new URL(pathname, request.url);
+function redirectWithMessage(pathname, key, message) {
+  const url = new URL(buildRelativeUrl(pathname), "http://local");
   url.searchParams.set(key, message);
-  return NextResponse.redirect(url, { status: 303 });
+  return createRedirectResponse(`${url.pathname}${url.search}`);
 }
 
 export async function POST(request) {
@@ -22,17 +23,13 @@ export async function POST(request) {
 
   if (!registration) {
     return redirectWithMessage(
-      request,
       "/lookup",
       "error",
       "Reference code or password is incorrect."
     );
   }
 
-  const response = NextResponse.redirect(
-    new URL(`/submission/${registration.referenceCode}`, request.url),
-    { status: 303 }
-  );
+  const response = createRedirectResponse(`/submission/${registration.referenceCode}`);
 
   response.cookies.set(
     REGISTRATION_SESSION_COOKIE,

@@ -4,14 +4,15 @@ import {
   cookieOptions,
   createRegistrationSession
 } from "@/lib/auth";
+import { buildRelativeUrl, createRedirectResponse } from "@/lib/request-url";
 import { createRegistration, FormError } from "@/lib/submissions";
 
 export const runtime = "nodejs";
 
-function redirectWithMessage(request, pathname, key, message) {
-  const url = new URL(pathname, request.url);
+function redirectWithMessage(pathname, key, message) {
+  const url = new URL(buildRelativeUrl(pathname), "http://local");
   url.searchParams.set(key, message);
-  return NextResponse.redirect(url, { status: 303 });
+  return createRedirectResponse(`${url.pathname}${url.search}`);
 }
 
 export async function POST(request) {
@@ -34,7 +35,6 @@ export async function POST(request) {
     });
 
     const response = redirectWithMessage(
-      request,
       `/submission/${registration.referenceCode}`,
       "created",
       `Registration saved. Your reference code is ${registration.referenceCode}.`
@@ -50,6 +50,6 @@ export async function POST(request) {
   } catch (error) {
     const message =
       error instanceof FormError ? error.message : "Unable to create registration.";
-    return redirectWithMessage(request, "/register", "error", message);
+    return redirectWithMessage("/register", "error", message);
   }
 }
