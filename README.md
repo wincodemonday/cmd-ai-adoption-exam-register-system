@@ -16,8 +16,8 @@ Single-repo Next.js solution for CMD AI Adoption Exam 2026 Problem #4.
 ## Tech choices
 
 - `Next.js` app router for pages and API in one project
-- File-backed JSON persistence for fast delivery
-- Local upload storage for supporting documents
+- Postgres via `DATABASE_URL` when configured, with file-backed JSON fallback for local-only use
+- S3-compatible object storage via `ACCESS_KEY`, `SECRET_KEY`, and `ENDPOINT_URL`, with local file fallback
 - Signed cookie sessions for attendee and admin access
 
 ## Environment
@@ -29,6 +29,14 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=change-me-now
 SESSION_SECRET=replace-this-secret-before-deploy
 EVENT_NAME=CMD AI Adoption Exam 2026
+DATABASE_URL=postgresql://user:password@localhost:5432/event_registration
+DATABASE_SSL=false
+ACCESS_KEY=your-access-key
+SECRET_KEY=your-secret-key
+ENDPOINT_URL=https://your-storage-endpoint
+STORAGE_BUCKET=event-registration-documents
+STORAGE_REGION=us-east-1
+STORAGE_FORCE_PATH_STYLE=true
 DATA_DIR=./data
 STORE_PATH=./data/registrations.json
 UPLOAD_DIR=./data/uploads
@@ -49,6 +57,4 @@ npm test
 
 ## Deploy note
 
-This app is easiest to deploy on a Node host with persistent disk such as Render, Railway with volume, Fly, or a VPS, because registrations and uploaded documents are stored on disk by default.
-# cmd-ai-adoption-exam-register-system
-# cmd-ai-adoption-exam-register-system
+When `DATABASE_URL` is present the app auto-creates the required Postgres tables on first use. When the storage envs are present the app uploads supporting documents to the configured S3-compatible endpoint and auto-creates the bucket if it does not exist. Without those storage envs it falls back to local disk under `data/uploads`.

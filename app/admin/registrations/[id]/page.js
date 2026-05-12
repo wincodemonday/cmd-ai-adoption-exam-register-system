@@ -21,7 +21,7 @@ export default async function AdminRegistrationDetailPage({ params }) {
     redirect("/admin/login?error=Please log in as admin.");
   }
 
-  const registration = getRegistrationById(id);
+  const registration = await getRegistrationById(id);
 
   if (!registration) {
     return (

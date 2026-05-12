@@ -18,7 +18,7 @@ function formatDate(value) {
 export default async function SubmissionPage({ params, searchParams }) {
   const { referenceCode } = await params;
   const query = (await searchParams) || {};
-  const registration = getRegistrationByReference(referenceCode);
+  const registration = await getRegistrationByReference(referenceCode);
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(REGISTRATION_SESSION_COOKIE)?.value;
   const hasAccess = registration

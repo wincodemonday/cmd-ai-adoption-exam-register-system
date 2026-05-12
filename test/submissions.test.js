@@ -80,7 +80,7 @@ test("registration create, lookup, and update flow keeps documents accessible", 
       paths
     );
 
-    const updated = getRegistrationByReference(created.referenceCode, paths.storePath);
+    const updated = await getRegistrationByReference(created.referenceCode, paths.storePath);
 
     assert.equal(updated?.name, "Alice Updated");
     assert.equal(updated?.documents.length, 2);

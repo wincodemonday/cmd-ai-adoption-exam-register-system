@@ -15,7 +15,7 @@ function sanitizeFileName(value) {
 
 export async function GET(request, context) {
   const { documentId } = await context.params;
-  const entry = getDocumentById(documentId);
+  const entry = await getDocumentById(documentId);
 
   if (!entry) {
     return new Response("Not found", { status: 404 });
@@ -31,7 +31,7 @@ export async function GET(request, context) {
     return new Response("Forbidden", { status: 403 });
   }
 
-  const bytes = readUploadedFile(entry.document.storageName);
+  const bytes = await readUploadedFile(entry.document.storageName);
 
   return new Response(bytes, {
     headers: {

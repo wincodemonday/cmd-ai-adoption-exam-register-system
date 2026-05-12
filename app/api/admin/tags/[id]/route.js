@@ -16,7 +16,7 @@ export async function GET(request, context) {
     return new Response("Forbidden", { status: 403 });
   }
 
-  const registration = getRegistrationById(id);
+  const registration = await getRegistrationById(id);
 
   if (!registration) {
     return new Response("Not found", { status: 404 });

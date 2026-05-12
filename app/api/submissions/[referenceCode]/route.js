@@ -30,7 +30,7 @@ export async function POST(request, context) {
     );
   }
 
-  const currentRegistration = getRegistrationByReference(referenceCode);
+  const currentRegistration = await getRegistrationByReference(referenceCode);
 
   if (!currentRegistration) {
     return redirectWithMessage(request, "/lookup", "error", "Registration not found.");

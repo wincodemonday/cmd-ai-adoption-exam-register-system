@@ -20,7 +20,7 @@ export default async function AdminRegistrationsPage() {
     redirect("/admin/login?error=Please log in as admin.");
   }
 
-  const registrations = listRegistrations();
+  const registrations = await listRegistrations();
 
   return (
     <section className="panel stack">
